@@ -46,6 +46,7 @@ public class RobotContainer {
                 arm.handoffArmToIntake()
             )
         );
+        controller.povLeft().whileTrue(shooter.feedToIntakeFromShooter());
     }
 
     public Command getAutonomousCommand() {

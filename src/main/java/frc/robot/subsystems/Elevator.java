@@ -6,10 +6,12 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
@@ -45,6 +47,15 @@ public class Elevator extends SubsystemBase {
     controller.setTolerance(0.05);
     encoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)));
     controller.setGoal(0);
+    configureMotors();
+  }
+
+  private void configureMotors() {
+    /*
+    TalonFXConfigurator rConfigurator = rightMotor.getConfigurator();
+    MotorOutputConfigs moConfig = new MotorOutputConfigs();
+    moConfig.Inverted = InvertedValue.CounterClockwise_Positive;
+    */
     rightMotor.setInverted(true);
     leftMotor.setInverted(false);
 

@@ -14,7 +14,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class Shooter extends SubsystemBase {
 
@@ -91,6 +95,25 @@ public class Shooter extends SubsystemBase {
 
   public void setGoal(double goal) {
     controller.setGoal(goal);
+  }
+
+  public Command feedToIntakeFromShooter() {
+    return new ParallelCommandGroup(
+      Commands.runEnd(() -> {
+          setGoal(0.95);
+          topShooterMotor.set(-0.8);
+          bottomShooterMotor.set(-0.8);
+          feederMotor.set(-0.5);
+        },
+        () -> stopMotor(),
+        this
+      ),
+      Commands.runEnd(() -> RobotContainer.intake.runForkToIntake(), () -> RobotContainer.intake.stopMotor(), RobotContainer.intake)
+    ).until(() -> RobotContainer.intake.intakeChangeFromBrokenToUnbroken());
+  }
+
+  public boolean flywheelsAtSpeed() {
+    return topFlywheelPID.atSetpoint() && bottomFlywheelPID.atSetpoint();
   }
 
   @Override

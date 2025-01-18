@@ -5,19 +5,10 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
-import frc.robot.commands.AmpForkCommand;
-import frc.robot.commands.ArmHandoff;
 
-//Inherits traits from subsystem base
 public class Intake extends SubsystemBase {
   private final TalonFX intakeMotor1 = new TalonFX(13, "canivore");
   private final TalonFX intakeMotor2 = new TalonFX(26, "canivore");
@@ -26,6 +17,8 @@ public class Intake extends SubsystemBase {
   //Creates BeamBreaker
   DigitalInput beamBreaker = new DigitalInput(8);
   DigitalInput armBeamBreaker = new DigitalInput(9);
+
+  private boolean previousIntakeBeamBreaker = false;
   
   /** Creates a new Intake. */
   public Intake() {
@@ -62,6 +55,26 @@ public class Intake extends SubsystemBase {
     diverterMotor.set(0.8);
     intakeMotor1.set(0.8);
     intakeMotor2.set(0.8);
+  }
+
+  public void runForkToIntake() {
+    intakeMotor1.set(-0.5);
+    intakeMotor2.set(-0.5);
+    diverterMotor.set(-0.5);
+  }
+
+  public boolean intakeChangeFromBrokenToUnbroken() {
+    if (intakeBeamBroken()) {
+      previousIntakeBeamBreaker = true;
+      return false;
+    } else {
+      if (previousIntakeBeamBreaker) {
+        previousIntakeBeamBreaker = false;
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 
   @Override
