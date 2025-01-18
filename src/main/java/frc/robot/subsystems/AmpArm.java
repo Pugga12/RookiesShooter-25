@@ -75,6 +75,12 @@ public class AmpArm extends SubsystemBase {
     }, this);
   }
 
+  public Command getHandoffPosCommand() {
+    return new InstantCommand(() -> {
+      setGoal(-2.6);
+    });
+  }
+
   public Command getAmpShootCommand() {
     return new InstantCommand(() -> {
       setGoal(Constants.AmpArm.ampShootPosition);

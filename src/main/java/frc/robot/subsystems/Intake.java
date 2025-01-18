@@ -80,6 +80,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("intake/beam breaker", beamBreaker.get());
+    SmartDashboard.putBoolean("intake/intake beam", intakeBeamBroken());
+    SmartDashboard.putBoolean("intake/arm beam", armBeamBroken());
   }
 }

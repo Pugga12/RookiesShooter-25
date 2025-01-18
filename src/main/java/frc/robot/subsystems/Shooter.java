@@ -14,11 +14,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.commands.Feed;
 
 public class Shooter extends SubsystemBase {
 
@@ -44,12 +46,10 @@ public class Shooter extends SubsystemBase {
 
   private final CANcoder encoder = new CANcoder(19, "canivore");  
   private final TalonFX pivotMotor = new TalonFX(18, "canivore");
-  private final TalonFX feederMotor = new TalonFX(17,"canivore");
   private final TalonFX bottomShooterMotor = new TalonFX(15, "canivore");
   private final TalonFX topShooterMotor = new TalonFX(16, "canivore");
   /** Creates a new Shooter. */
   public Shooter() {
-    feederMotor.setInverted(true);
     bottomShooterMotor.setInverted(false);
     topShooterMotor.setInverted(false);
     topFlywheelPID.setTolerance(50);
@@ -65,16 +65,10 @@ public class Shooter extends SubsystemBase {
   public double getBottomFlywheelRPM(){
     return bottomShooterMotor.getVelocity().getValueAsDouble() * 60;
   }
-  
-
-  public void setFeederSpeed(double feederSpeed) {
-    feederMotor.set(feederSpeed);
-  }
 
   public void stopMotor() {
     bottomShooterMotor.stopMotor();
     topShooterMotor.stopMotor();
-    feederMotor.stopMotor();
   }
 
   public void runFlywheels (double topRPM, double bottomRPM) {
@@ -101,13 +95,13 @@ public class Shooter extends SubsystemBase {
     return new ParallelCommandGroup(
       Commands.runEnd(() -> {
           setGoal(0.95);
-          topShooterMotor.set(-0.8);
-          bottomShooterMotor.set(-0.8);
-          feederMotor.set(-0.5);
+          topShooterMotor.set(-0.5);
+          bottomShooterMotor.set(-0.5);
         },
         () -> stopMotor(),
         this
       ),
+      new Feed(),
       Commands.runEnd(() -> RobotContainer.intake.runForkToIntake(), () -> RobotContainer.intake.stopMotor(), RobotContainer.intake)
     ).until(() -> RobotContainer.intake.intakeChangeFromBrokenToUnbroken());
   }
@@ -122,6 +116,11 @@ public class Shooter extends SubsystemBase {
     double ff = feedforward.calculate(controller.getGoal().position, 
       controller.getGoal().velocity);
 
-    pivotMotor.setVoltage(pid + ff);    
+    pivotMotor.setVoltage(pid + ff);
+    
+    SmartDashboard.putNumber("shooter/upperRpm", getTopFlywheelRPM());
+    SmartDashboard.putNumber("shooter/lowerRpm", getBottomFlywheelRPM());
+    SmartDashboard.putBoolean("shooter/atSpeed", flywheelsAtSpeed());
+    SmartDashboard.putNumber("shooter/desiredRpm", topFlywheelPID.getSetpoint());
   }
 }

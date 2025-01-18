@@ -11,6 +11,7 @@ public class ShooterCommand extends Command {
   /** Creates a new ShooterCommand. */
   public ShooterCommand() {
     addRequirements(RobotContainer.shooter);
+    addRequirements(RobotContainer.feeder);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -24,7 +25,7 @@ public class ShooterCommand extends Command {
   @Override
   public void execute() {
     RobotContainer.shooter.runFlywheels(1000, 1000);
-    RobotContainer.shooter.setFeederSpeed(0.5);
+    RobotContainer.feeder.setFeederSpeed(0.5);
   }
 
   // Called once the command ends or is interrupted.

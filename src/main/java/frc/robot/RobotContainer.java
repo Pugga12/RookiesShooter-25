@@ -6,15 +6,17 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.Feed;
 import frc.robot.commands.IntakeCommands;
-import frc.robot.commands.PodiumShot;
 import frc.robot.commands.ShooterCommand;
 import frc.robot.subsystems.AmpArm;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
@@ -24,6 +26,7 @@ public class RobotContainer {
     public static Shooter shooter = new Shooter();
     public static Elevator elevator = new Elevator();
     public static AmpArm arm = new AmpArm();
+    public static Feeder feeder = new Feeder();
     //Declares the controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -33,14 +36,31 @@ public class RobotContainer {
 
     private void configureBindings() {
         controller.rightBumper().whileTrue(new IntakeCommands());
-        controller.leftBumper().whileTrue(new ShooterCommand());
+        controller.leftBumper().whileTrue(
+            Commands.parallel(
+                Commands.runEnd(
+                    () -> shooter.runFlywheels(1000, 1000),
+                    () -> shooter.stopMotor(),
+                    shooter
+                ),
+                new SequentialCommandGroup(
+                    new WaitUntilCommand(() -> shooter.flywheelsAtSpeed()),
+                    Commands.runEnd(
+                        () -> intake.setMotorPower(0.5, 0.8),
+                        () -> intake.stopMotor(),
+                        intake
+                    )
+                ),
+                new Feed()
+            )
+        );
         controller.a().onTrue(elevator.getHomeCommand());
         controller.y().onTrue(elevator.getFullExtendCommand());
         controller.povDown().onTrue(arm.getHomeCommand());
         controller.povUp().onTrue(arm.getAmpShootCommand());
         controller.b().onTrue(
             new SequentialCommandGroup(
-                arm.getHomeCommand(),
+                arm.getHandoffPosCommand(),
                 new WaitUntilCommand(() -> arm.pivotAtGoal())
                 .raceWith(new WaitCommand(1.5)),
                 arm.handoffArmToIntake()

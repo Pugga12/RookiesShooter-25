@@ -7,11 +7,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
-public class PodiumShot extends Command {
-  /** Creates a new PodiumShot. */
-  public PodiumShot() {
+/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+public class Feed extends Command {
+  /** Creates a new Feed. */
+  public Feed() {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(RobotContainer.shooter);
+    addRequirements(RobotContainer.feeder);
   }
 
   // Called when the command is initially scheduled.
@@ -21,15 +22,13 @@ public class PodiumShot extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    RobotContainer.shooter.setGoal(3);
-    RobotContainer.shooter.setFeederSpeed(0.5);
+    RobotContainer.feeder.setFeederSpeed(0.5);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    RobotContainer.shooter.setGoal(0);
-    RobotContainer.shooter.stopMotor();
+    RobotContainer.feeder.stop();
   }
 
   // Returns true when the command should end.
