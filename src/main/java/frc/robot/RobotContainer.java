@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -18,6 +20,7 @@ import frc.robot.subsystems.AmpArm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LED2025;
 import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
@@ -27,11 +30,17 @@ public class RobotContainer {
     public static Elevator elevator = new Elevator();
     public static AmpArm arm = new AmpArm();
     public static Feeder feeder = new Feeder();
+    public static LED2025 led = new LED2025(40);
+    DriverStation.Alliance alliance = DriverStation.Alliance.Blue;
     //Declares the controller
     private final CommandXboxController controller = new CommandXboxController(0);
 
     public RobotContainer() {
         configureBindings();
+        if (DriverStation.isDSAttached()) {
+            alliance = DriverStation.getAlliance().get();
+        } 
+        led.setDefaultCommand(led.setColor(alliance == DriverStation.Alliance.Blue ? Color.kBlue : Color.kRed));
     }
 
     private void configureBindings() {
@@ -67,6 +76,7 @@ public class RobotContainer {
             )
         );
         controller.povLeft().whileTrue(shooter.feedToIntakeFromShooter());
+        controller.povRight().onTrue(led.setColor(Color.kRed));
     }
 
     public Command getAutonomousCommand() {
