@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Feeder extends SubsystemBase {
@@ -22,6 +24,14 @@ public class Feeder extends SubsystemBase {
 
   public void stop() {
     feederMotor.stopMotor();
+  }
+
+  public Command feedBackToIntakeCommand() {
+    return Commands.runEnd(
+      () -> setFeederSpeed(-0.5),
+      () -> stop(),
+      this
+    );
   }
 
   @Override

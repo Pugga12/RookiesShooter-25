@@ -101,7 +101,7 @@ public class Shooter extends SubsystemBase {
         () -> stopMotor(),
         this
       ),
-      new Feed(),
+      RobotContainer.feeder.feedBackToIntakeCommand(),
       Commands.runEnd(() -> RobotContainer.intake.runForkToIntake(), () -> RobotContainer.intake.stopMotor(), RobotContainer.intake)
     ).until(() -> RobotContainer.intake.intakeChangeFromBrokenToUnbroken());
   }
